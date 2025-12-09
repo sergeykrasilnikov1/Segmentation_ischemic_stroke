@@ -46,6 +46,10 @@ def calculate_iou_score(y_pred_prob: torch.Tensor, y_true: torch.Tensor, smooth:
     y_pred = (y_pred_prob > 0.5).float()
     intersection = (y_pred * y_true).sum()
     union = y_pred.sum() + y_true.sum() - intersection
+    
+    if union == 0:
+        return 1.0
+    
     iou = (intersection + smooth) / (union + smooth)
     return iou.item()
 

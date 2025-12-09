@@ -36,7 +36,7 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone <repository-url>
+git clone https://github.com/sergeykrasilnikov1/Segmentation_ischemic_stroke.git
 cd brain-stroke-segmentation
 ```
 
@@ -48,7 +48,20 @@ poetry install
 poetry shell
 ```
 
-3. Установите pre-commit хуки:
+**Для Google Colab:**
+```python
+!git clone https://github.com/sergeykrasilnikov1/Segmentation_ischemic_stroke.git
+%cd Segmentation_ischemic_stroke
+
+!pip install -r requirements.txt
+
+import sys
+sys.path.append('/content/Segmentation_ischemic_stroke')
+```
+
+**Примечание:** В Colab не нужно устанавливать pre-commit - это инструмент для локальной разработки. Просто установите зависимости через pip.
+
+3. Установите pre-commit хуки (только для локальной разработки):
 ```bash
 pre-commit install
 ```
@@ -68,6 +81,30 @@ dvc pull
 
 Если данные еще не добавлены в DVC, они будут скачаны автоматически при первом запуске обучения.
 
+**Для Google Colab:**
+
+Если DVC не установлен, установите его:
+```python
+!pip install dvc[s3,gs]
+!dvc pull
+```
+
+Или используйте функцию download_data:
+```python
+from brain_stroke_segmentation.data_loader import download_data
+from pathlib import Path
+
+download_data(Path('data/Brain_Stroke_CT_Dataset'))
+```
+
+Или скачайте данные с Kaggle напрямую:
+```python
+!pip install kagglehub
+import kagglehub
+
+dataset_path = kagglehub.dataset_download("ayushtibrewal/brain-stroke-images")
+```
+
 ### Train
 
 Для запуска обучения модели используйте команду:
@@ -80,6 +117,24 @@ python -m brain_stroke_segmentation.commands train
 
 ```bash
 python -m brain_stroke_segmentation.commands train --config_path=configs --config_name=config
+```
+
+**Для Google Colab:**
+
+```python
+%cd Segmentation_ischemic_stroke
+
+import sys
+sys.path.insert(0, '/content/Segmentation_ischemic_stroke')
+
+from brain_stroke_segmentation.commands import train
+train(config_path="configs", config_name="config")
+```
+
+Или через командную строку:
+```python
+%cd Segmentation_ischemic_stroke
+!python -m brain_stroke_segmentation.commands train
 ```
 
 #### Этапы обучения
@@ -290,12 +345,3 @@ brain-stroke-segmentation/
 ```bash
 pre-commit run -a
 ```
-
-## Лицензия
-
-[Укажите лицензию]
-
-## Авторы
-
-[Укажите авторов]
-

@@ -79,15 +79,35 @@ def train(config_path: str = "configs", config_name: str = "config") -> None:
         verbose=True,
     )
 
-    logger = pl.loggers.MLFlowLogger(
-        experiment_name="brain_stroke_segmentation",
-        tracking_uri=cfg.logging.mlflow_uri,
-    )
+    try:
+        import mlflow
+        mlflow.set_tracking_uri(cfg.logging.mlflow_uri)
+        mlflow.get_experiment_by_name("brain_stroke_segmentation")
+        logger = pl.loggers.MLFlowLogger(
+            experiment_name="brain_stroke_segmentation",
+            tracking_uri=cfg.logging.mlflow_uri,
+        )
+        print("Using MLflow logger")
+    except Exception as e:
+        print(f"MLflow not available ({e}), using TensorBoard logger instead")
+        logger = pl.loggers.TensorBoardLogger(
+            save_dir="logs",
+            name="brain_stroke_segmentation",
+        )
 
+    import torch
+    use_gpu = cfg.train.use_gpu and torch.cuda.is_available()
+    accelerator = "gpu" if use_gpu else "cpu"
+    
+    if use_gpu:
+        devices = cfg.train.num_devices
+    else:
+        devices = 1
+    
     trainer = pl.Trainer(
         max_epochs=cfg.train.epochs,
-        accelerator="gpu" if cfg.train.use_gpu else "cpu",
-        devices=cfg.train.num_devices,
+        accelerator=accelerator,
+        devices=devices,
         callbacks=[checkpoint_callback, early_stopping],
         logger=logger,
         log_every_n_steps=cfg.train.log_every_n_steps,
