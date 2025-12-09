@@ -1,0 +1,101 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyTorch
+*.pth
+*.pt
+*.ckpt
+
+# Data files
+*.csv
+*.json
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+
+# Model files
+*.onnx
+*.trt
+*.engine
+*.cbm
+*.xyz
+
+# DVC
+.dvc/cache
+.dvc/tmp
+.dvc/state
+.dvc/lock
+
+# MLflow
+mlruns/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Poetry
+poetry.lock
+
+# UV
+uv.lock
+
+# Plots (keep directory, ignore contents if needed)
+plots/*.png
+plots/*.jpg
+plots/*.pdf
+
+# Data directory
+data/*
+!data/.gitkeep
+
+# Models directory
+models/*
+!models/.gitkeep
+

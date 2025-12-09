@@ -1,0 +1,7 @@
+stages:
+  download_data:
+    cmd: python -c "from brain_stroke_segmentation.data_loader import download_data; from pathlib import Path; download_data(Path('data/Brain_Stroke_CT_Dataset'))"
+    deps: []
+    outs:
+      - data/Brain_Stroke_CT_Dataset
+

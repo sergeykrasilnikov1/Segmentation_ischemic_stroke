@@ -1,0 +1,7 @@
+dataset_path: "data/Brain_Stroke_CT_Dataset"
+dvc_repo: "."
+img_height: 256
+img_width: 256
+test_size: 0.15
+random_state: 42
+
