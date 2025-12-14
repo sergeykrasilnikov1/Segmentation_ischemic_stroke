@@ -1,0 +1,12 @@
+schema: '2.0'
+stages:
+  download_data:
+    cmd: python -c "from brain_stroke_segmentation.data_loader import
+      download_data; from pathlib import Path;
+      download_data(Path('data/Brain_Stroke_CT_Dataset'))"
+    outs:
+    - path: data/Brain_Stroke_CT_Dataset
+      hash: md5
+      md5: caa2a5486a0542761883300e34514e26.dir
+      size: 73401071
+      nfiles: 3686
