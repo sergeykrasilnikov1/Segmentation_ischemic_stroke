@@ -180,6 +180,14 @@ convert_to_tensorrt(
 
 **Требования**: Установленный TensorRT и trtexec в PATH.
 
+**Загрузка весов модели из Hugging Face Hub**
+
+DVC поддерживает прямую интеграцию с Hugging Face Hub. Вы можете скачать модель напрямую:
+
+```bash
+dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation best_model.pth -o models/best_model.pth
+```
+
 #### Артефакты для продакшена
 
 Для запуска инференса необходимы:

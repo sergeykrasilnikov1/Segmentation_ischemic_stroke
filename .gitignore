@@ -98,4 +98,5 @@ data/*
 # Models directory
 models/*
 !models/.gitkeep
+!models/*.dvc
 web/
