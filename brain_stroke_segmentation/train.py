@@ -191,7 +191,7 @@ def train_model(
     criterion = CombinedLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="max", factor=0.5, patience=8, min_lr=1e-7, verbose=True
+        optimizer, mode="max", factor=0.5, patience=8, min_lr=1e-7
     )
 
     history = {
