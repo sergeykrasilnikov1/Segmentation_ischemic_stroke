@@ -2,13 +2,12 @@
 
 import fire
 from pathlib import Path
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+import torch
 from torch.utils.data import DataLoader
 from hydra import compose, initialize_config_dir
 from omegaconf import DictConfig, OmegaConf
 
-from brain_stroke_segmentation.lightning_module import StrokeSegmentationModule
+from brain_stroke_segmentation.train import train_model
 from brain_stroke_segmentation.data_loader import create_datasets, download_data
 from brain_stroke_segmentation.inference import StrokeInference
 from brain_stroke_segmentation.onnx_converter import convert_to_onnx
@@ -58,84 +57,69 @@ def train(config_path: str = "configs", config_name: str = "config") -> None:
         pin_memory=True,
     )
 
-    model = StrokeSegmentationModule(
+    use_gpu = cfg.train.use_gpu and torch.cuda.is_available()
+    device = torch.device("cuda" if use_gpu else "cpu")
+
+    model, history = train_model(
+        train_loader=train_loader,
+        val_loader=val_loader,
         encoder_name=cfg.model.encoder_name,
         encoder_weights=cfg.model.encoder_weights,
         learning_rate=cfg.train.learning_rate,
-        mlflow_uri=cfg.logging.mlflow_uri,
-    )
-
-    checkpoint_callback = ModelCheckpoint(
-        dirpath=Path(cfg.train.checkpoint_dir),
-        filename="best-{epoch:02d}-{val_dice:.4f}",
-        monitor="val_dice",
-        mode="max",
-        save_top_k=1,
-    )
-    early_stopping = EarlyStopping(
-        monitor="val_dice",
-        mode="max",
+        epochs=cfg.train.epochs,
         patience=cfg.train.patience,
-        verbose=True,
-    )
-
-    try:
-        import mlflow
-        mlflow.set_tracking_uri(cfg.logging.mlflow_uri)
-        mlflow.get_experiment_by_name("brain_stroke_segmentation")
-        logger = pl.loggers.MLFlowLogger(
-            experiment_name="brain_stroke_segmentation",
-            tracking_uri=cfg.logging.mlflow_uri,
-        )
-        print("Using MLflow logger")
-    except Exception as e:
-        print(f"MLflow not available ({e}), using TensorBoard logger instead")
-        logger = pl.loggers.TensorBoardLogger(
-            save_dir="logs",
-            name="brain_stroke_segmentation",
-        )
-
-    import torch
-    use_gpu = cfg.train.use_gpu and torch.cuda.is_available()
-    accelerator = "gpu" if use_gpu else "cpu"
-    
-    if use_gpu:
-        devices = cfg.train.num_devices
-    else:
-        devices = 1
-    
-    trainer = pl.Trainer(
-        max_epochs=cfg.train.epochs,
-        accelerator=accelerator,
-        devices=devices,
-        callbacks=[checkpoint_callback, early_stopping],
-        logger=logger,
+        checkpoint_dir=cfg.train.checkpoint_dir,
+        device=device,
+        mlflow_uri=cfg.logging.mlflow_uri if hasattr(cfg.logging, "mlflow_uri") else None,
         log_every_n_steps=cfg.train.log_every_n_steps,
     )
 
-    trainer.fit(model, train_loader, val_loader)
+    # Copy best model to models directory
+        import shutil
+        models_dir = Path("models")
+        models_dir.mkdir(exist_ok=True)
+    best_model_source = Path(cfg.train.checkpoint_dir) / "best_model.pth"
+    best_model_dest = models_dir / "best_model.pth"
+    if best_model_source.exists():
+        shutil.copy2(best_model_source, best_model_dest)
+        print(f"Best model copied to {best_model_dest}")
 
     if cfg.production.convert_onnx:
-        best_model_path = checkpoint_callback.best_model_path
-        onnx_path = Path(cfg.production.onnx_output_path)
-        convert_to_onnx(
-            model_path=best_model_path,
-            output_path=onnx_path,
-            img_height=cfg.data.img_height,
-            img_width=cfg.data.img_width,
-            encoder_name=cfg.model.encoder_name,
-        )
+        try:
+            best_model_path = Path(cfg.train.checkpoint_dir) / "best_model.pth"
+            onnx_path = Path(cfg.production.onnx_output_path)
+            convert_to_onnx(
+                model_path=best_model_path,
+                output_path=onnx_path,
+                img_height=cfg.data.img_height,
+                img_width=cfg.data.img_width,
+                encoder_name=cfg.model.encoder_name,
+            )
+        except Exception as e:
+            print(f"Warning: ONNX conversion failed: {e}")
+            print("Model training completed, but ONNX conversion skipped.")
 
     print("Training completed!")
 
 
-def infer(config_path: str = "configs", config_name: str = "config") -> None:
+def infer(
+    image_path: str,
+    config_path: str = "configs",
+    config_name: str = "config",
+    model_path: str | None = None,
+    output_path: str | None = None,
+    threshold: float | None = None,
+) -> None:
     """
     Run inference on new images.
 
     Args:
+        image_path: Path to input image file or directory
         config_path: Path to configs directory
         config_name: Name of config file
+        model_path: Override model path from config
+        output_path: Override output path from config
+        threshold: Override threshold from config
     """
     config_dir = Path(config_path).absolute()
     with initialize_config_dir(config_dir=str(config_dir), version_base=None):
@@ -148,20 +132,24 @@ def infer(config_path: str = "configs", config_name: str = "config") -> None:
     except Exception as e:
         print(f"DVC pull failed: {e}")
 
+    model_path_override = model_path if model_path else cfg.infer.model_path
+    output_path_override = output_path if output_path else cfg.infer.output_path
+    threshold_override = threshold if threshold is not None else cfg.infer.threshold
+
     inference = StrokeInference(
-        model_path=cfg.infer.model_path,
+        model_path=model_path_override,
         img_height=cfg.data.img_height,
         img_width=cfg.data.img_width,
         device=cfg.infer.device,
         encoder_name=cfg.model.encoder_name,
     )
 
-    input_path = Path(cfg.infer.input_path)
-    output_path = Path(cfg.infer.output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
+    input_path = Path(image_path)
+    output_path_final = Path(output_path_override)
+    output_path_final.mkdir(parents=True, exist_ok=True)
 
     if input_path.is_file():
-        rgb, prob, binary = inference.predict(input_path, threshold=cfg.infer.threshold)
+        rgb, prob, binary = inference.predict(input_path, threshold=threshold_override)
         import matplotlib.pyplot as plt
 
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
@@ -174,13 +162,14 @@ def infer(config_path: str = "configs", config_name: str = "config") -> None:
         axes[2].imshow(binary, cmap="gray")
         axes[2].set_title("Binary Mask")
         axes[2].axis("off")
-        plt.savefig(output_path / f"{input_path.stem}_prediction.png")
+        plt.savefig(output_path_final / f"{input_path.stem}_prediction.png")
         plt.close()
+        print(f"Prediction saved to {output_path_final / f'{input_path.stem}_prediction.png'}")
 
     elif input_path.is_dir():
-        image_files = list(input_path.glob("*.png")) + list(input_path.glob("*.jpg"))
-        results = inference.predict_batch(image_files, threshold=cfg.infer.threshold)
-        print(f"Processed {len(results)} images. Results saved to {output_path}")
+        image_files = list(input_path.glob("*.png")) + list(input_path.glob("*.jpg")) + list(input_path.glob("*.jpeg"))
+        results = inference.predict_batch(image_files, threshold=threshold_override)
+        print(f"Processed {len(results)} images. Results saved to {output_path_final}")
 
     else:
         raise ValueError(f"Input path must be a file or directory: {input_path}")
