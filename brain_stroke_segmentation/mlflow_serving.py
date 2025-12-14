@@ -1,9 +1,10 @@
 """MLflow serving utilities."""
 
+from pathlib import Path
+
 import mlflow
 import mlflow.pytorch
 import torch
-from pathlib import Path
 
 from brain_stroke_segmentation.model import build_model
 
@@ -33,7 +34,9 @@ def register_model_for_serving(
         state_dict = state_dict["state_dict"]
         # Remove 'model.' prefix if present
         if any(k.startswith("model.") for k in state_dict.keys()):
-            state_dict = {k.replace("model.", ""): v for k, v in state_dict.items() if k.startswith("model.")}
+            state_dict = {
+                k.replace("model.", ""): v for k, v in state_dict.items() if k.startswith("model.")
+            }
     model.load_state_dict(state_dict)
     model.eval()
 
@@ -48,9 +51,7 @@ def register_model_for_serving(
 
     client = mlflow.tracking.MlflowClient()
     latest_version = client.get_latest_versions(model_name, stages=["None"])[0].version
-    client.transition_model_version_stage(
-        name=model_name, version=latest_version, stage=stage
-    )
+    client.transition_model_version_stage(name=model_name, version=latest_version, stage=stage)
 
     print(f"Model registered as {model_name} version {latest_version} in {stage} stage")
 
@@ -59,4 +60,3 @@ if __name__ == "__main__":
     import fire
 
     fire.Fire(register_model_for_serving)
-

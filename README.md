@@ -18,6 +18,7 @@
 ### Данные
 
 Используется датасет Brain Stroke CT Dataset с Kaggle, содержащий:
+
 - Изображения КТ мозга с различными типами инсульта (кровоизлияние, ишемия)
 - Нормальные изображения без патологий
 - Разметка в виде цветных overlay изображений с красными метками пораженных областей
@@ -35,6 +36,7 @@
 #### Установка окружения
 
 1. Клонируйте репозиторий:
+
 ```bash
 git clone https://github.com/sergeykrasilnikov1/Segmentation_ischemic_stroke.git
 cd brain-stroke-segmentation
@@ -43,17 +45,20 @@ cd brain-stroke-segmentation
 2. Создайте виртуальное окружение и установите зависимости:
 
 **С использованием Poetry:**
+
 ```bash
 poetry install
 poetry shell
 ```
 
 3. Установите pre-commit хуки:
+
 ```bash
 pre-commit install
 ```
 
 4. Проверьте установку:
+
 ```bash
 pre-commit run -a
 ```
@@ -162,6 +167,7 @@ convert_to_tensorrt(
 #### Артефакты для продакшена
 
 Для запуска инференса необходимы:
+
 - Модель (`.pth`, `.onnx` или `.trt`)
 - Конфигурационные файлы (`configs/`)
 - Модуль `brain_stroke_segmentation.inference`
@@ -190,6 +196,7 @@ python -m brain_stroke_segmentation.commands infer infer.input_path=data/test_im
 #### Формат выходных данных
 
 Для каждого входного изображения создается файл `{имя_изображения}_prediction.png` с тремя панелями:
+
 1. Оригинальное изображение
 2. Карта вероятностей
 3. Бинарная маска сегментации
@@ -199,6 +206,7 @@ python -m brain_stroke_segmentation.commands infer infer.input_path=data/test_im
 Для запуска инференса через MLflow Serving:
 
 1. Зарегистрируйте модель в MLflow:
+
 ```python
 import mlflow.pytorch
 
@@ -210,11 +218,13 @@ mlflow.pytorch.log_model(
 ```
 
 2. Запустите MLflow Serving:
+
 ```bash
 mlflow models serve -m models:/brain_stroke_segmentation/Production --host 127.0.0.1 --port 5000
 ```
 
 3. Отправьте запрос:
+
 ```bash
 curl -X POST http://127.0.0.1:5000/invocations \
   -H "Content-Type: application/json" \

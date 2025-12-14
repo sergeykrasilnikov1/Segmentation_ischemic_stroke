@@ -31,4 +31,3 @@ def get_transforms(is_training: bool = True) -> A.Compose:
                 ToTensorV2(),
             ]
         )
-

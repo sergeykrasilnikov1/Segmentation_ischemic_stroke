@@ -5,6 +5,4 @@ defaults:
   - infer: infer
   - logging: logging
   - production: production
-
 # Override defaults here if needed
-

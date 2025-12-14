@@ -1,17 +1,16 @@
 """CLI commands for training and inference."""
 
-import fire
 from pathlib import Path
-import torch
-from torch.utils.data import DataLoader
-from hydra import compose, initialize_config_dir
-from omegaconf import DictConfig, OmegaConf
 
-from brain_stroke_segmentation.train import train_model
+import fire
+import torch
+from hydra import compose, initialize_config_dir
+from torch.utils.data import DataLoader
+
 from brain_stroke_segmentation.data_loader import create_datasets, download_data
 from brain_stroke_segmentation.inference import StrokeInference
 from brain_stroke_segmentation.onnx_converter import convert_to_onnx
-from brain_stroke_segmentation.tensorrt_converter import convert_to_tensorrt
+from brain_stroke_segmentation.train import train_model
 
 
 def train(config_path: str = "configs", config_name: str = "config") -> None:
@@ -28,6 +27,7 @@ def train(config_path: str = "configs", config_name: str = "config") -> None:
 
     try:
         import dvc.repo
+
         repo = dvc.repo.Repo()
         repo.pull()
     except Exception as e:
@@ -75,9 +75,10 @@ def train(config_path: str = "configs", config_name: str = "config") -> None:
     )
 
     # Copy best model to models directory
-        import shutil
-        models_dir = Path("models")
-        models_dir.mkdir(exist_ok=True)
+    import shutil
+
+    models_dir = Path("models")
+    models_dir.mkdir(exist_ok=True)
     best_model_source = Path(cfg.train.checkpoint_dir) / "best_model.pth"
     best_model_dest = models_dir / "best_model.pth"
     if best_model_source.exists():
@@ -127,6 +128,7 @@ def infer(
 
     try:
         import dvc.repo
+
         repo = dvc.repo.Repo()
         repo.pull()
     except Exception as e:
@@ -167,7 +169,11 @@ def infer(
         print(f"Prediction saved to {output_path_final / f'{input_path.stem}_prediction.png'}")
 
     elif input_path.is_dir():
-        image_files = list(input_path.glob("*.png")) + list(input_path.glob("*.jpg")) + list(input_path.glob("*.jpeg"))
+        image_files = (
+            list(input_path.glob("*.png"))
+            + list(input_path.glob("*.jpg"))
+            + list(input_path.glob("*.jpeg"))
+        )
         results = inference.predict_batch(image_files, threshold=threshold_override)
         print(f"Processed {len(results)} images. Results saved to {output_path_final}")
 
@@ -176,10 +182,9 @@ def infer(
 
 
 def main():
-    """Main entry point."""
+    """Execute the main entry point."""
     fire.Fire({"train": train, "infer": infer})
 
 
 if __name__ == "__main__":
     main()
-

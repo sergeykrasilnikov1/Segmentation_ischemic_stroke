@@ -2,4 +2,3 @@ convert_onnx: true
 onnx_output_path: "models/model.onnx"
 convert_tensorrt: false
 tensorrt_output_path: "models/model.trt"
-

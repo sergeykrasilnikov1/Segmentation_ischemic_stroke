@@ -4,4 +4,3 @@ stages:
     deps: []
     outs:
       - data/Brain_Stroke_CT_Dataset
-

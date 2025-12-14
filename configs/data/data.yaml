@@ -4,4 +4,3 @@ img_height: 256
 img_width: 256
 test_size: 0.15
 random_state: 42
-

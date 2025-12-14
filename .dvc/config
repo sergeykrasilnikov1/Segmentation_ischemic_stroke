@@ -4,4 +4,3 @@
 ['remote "local_storage"']
     url = ./data
     type = local
-

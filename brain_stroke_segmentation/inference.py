@@ -1,17 +1,18 @@
 """Inference utilities for stroke segmentation."""
 
 import os
-import cv2
-import numpy as np
-import torch
 from pathlib import Path
 from typing import Tuple
 
-# Set environment variable to avoid torchvision nms issues
-os.environ.setdefault("TORCHVISION_OPS_USE_CUDA", "0")
+import cv2
+import numpy as np
+import torch
 
 from brain_stroke_segmentation.model import build_model
 from brain_stroke_segmentation.transforms import get_transforms
+
+# Set environment variable to avoid torchvision nms issues
+os.environ.setdefault("TORCHVISION_OPS_USE_CUDA", "0")
 
 
 class StrokeInference:
@@ -41,38 +42,42 @@ class StrokeInference:
         self.transforms = get_transforms(is_training=False)
 
         model_path = Path(model_path)
-        
+
         # Load model on CPU first to avoid torchvision nms issues during weight loading
         # Temporarily disable torchvision ops to avoid nms operator errors
         original_env = os.environ.get("TORCHVISION_OPS_USE_CUDA", None)
         os.environ["TORCHVISION_OPS_USE_CUDA"] = "0"
-        
+
         try:
             self.model = build_model(encoder_name=encoder_name)
-            
+
             try:
                 state_dict = torch.load(model_path, map_location="cpu", weights_only=False)
             except TypeError:
                 # Fallback for older PyTorch versions that don't support weights_only
                 state_dict = torch.load(model_path, map_location="cpu")
-            
+
             # Handle both .pth (state_dict) and .ckpt (legacy Lightning format)
             if isinstance(state_dict, dict) and "state_dict" in state_dict:
                 # Legacy Lightning checkpoint format
                 state_dict = state_dict["state_dict"]
                 # Remove 'model.' prefix if present
                 if any(k.startswith("model.") for k in state_dict.keys()):
-                    state_dict = {k.replace("model.", ""): v for k, v in state_dict.items() if k.startswith("model.")}
-            
+                    state_dict = {
+                        k.replace("model.", ""): v
+                        for k, v in state_dict.items()
+                        if k.startswith("model.")
+                    }
+
             # Load state dict with strict=False to handle version mismatches
             missing_keys, unexpected_keys = self.model.load_state_dict(state_dict, strict=False)
             if missing_keys:
                 print(f"Warning: Missing keys: {missing_keys[:5]}...")
             if unexpected_keys:
                 print(f"Warning: Unexpected keys: {unexpected_keys[:5]}...")
-            
+
             self.model.eval()
-            
+
             # Move to device after loading
             self.model.to(self.device)
         finally:
@@ -82,7 +87,9 @@ class StrokeInference:
             elif "TORCHVISION_OPS_USE_CUDA" in os.environ:
                 del os.environ["TORCHVISION_OPS_USE_CUDA"]
 
-    def predict(self, image_path: Path | str, threshold: float = 0.5) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def predict(
+        self, image_path: Path | str, threshold: float = 0.5
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Predict stroke segmentation for a single image.
 
@@ -102,7 +109,9 @@ class StrokeInference:
             raise ValueError(f"Could not read image: {image_path}")
 
         rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        rgb_resized = cv2.resize(rgb, (self.img_width, self.img_height), interpolation=cv2.INTER_LINEAR)
+        rgb_resized = cv2.resize(
+            rgb, (self.img_width, self.img_height), interpolation=cv2.INTER_LINEAR
+        )
 
         dummy_mask = np.zeros((self.img_height, self.img_width), dtype=np.float32)
         sample = self.transforms(image=rgb_resized, mask=dummy_mask)
@@ -136,4 +145,3 @@ class StrokeInference:
                 print(f"Error processing {image_path}: {e}")
                 results.append(None)
         return results
-

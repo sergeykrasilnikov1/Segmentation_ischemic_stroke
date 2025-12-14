@@ -1,8 +1,9 @@
 """Visualization utilities for training metrics."""
 
-import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Dict, List
+
+import matplotlib.pyplot as plt
 
 
 def plot_training_history(history: Dict[str, List[float]], output_path: Path | str = None) -> None:
@@ -71,4 +72,3 @@ def plot_training_history(history: Dict[str, List[float]], output_path: Path | s
         plt.show()
 
     plt.close()
-

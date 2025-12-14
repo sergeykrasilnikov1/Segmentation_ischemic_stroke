@@ -22,4 +22,3 @@ else
     echo "TensorRT conversion failed"
     exit 1
 fi
-

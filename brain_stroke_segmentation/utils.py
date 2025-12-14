@@ -1,11 +1,14 @@
 """Utility functions for brain stroke segmentation."""
 
-import cv2
-import numpy as np
 from pathlib import Path
 
+import cv2
+import numpy as np
 
-def extract_red_mask_from_path(mask_path: Path | str | None, width: int, height: int) -> np.ndarray | None:
+
+def extract_red_mask_from_path(
+    mask_path: Path | str | None, width: int, height: int
+) -> np.ndarray | None:
     """
     Read a color overlay image and extract the red-filled lesion as a binary mask.
 
@@ -42,8 +45,8 @@ def get_git_commit_id() -> str:
     """Get current git commit ID."""
     try:
         import git
+
         repo = git.Repo(search_parent_directories=True)
         return repo.head.object.hexsha[:8]
     except Exception:
         return "unknown"
-

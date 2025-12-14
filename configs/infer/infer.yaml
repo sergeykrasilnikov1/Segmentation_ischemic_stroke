@@ -3,4 +3,3 @@ input_path: "data/test_images"
 output_path: "data/predictions"
 device: "cuda"
 threshold: 0.5
-

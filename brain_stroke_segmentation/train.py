@@ -1,24 +1,24 @@
 """Training utilities for stroke segmentation using pure PyTorch."""
 
+from pathlib import Path
+from typing import Dict, Optional, Tuple
+
+import mlflow
+import mlflow.pytorch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from pathlib import Path
 from tqdm import tqdm
-from typing import Dict, Tuple, Optional
-import mlflow
-import mlflow.pytorch
 
-from brain_stroke_segmentation.model import build_model
 from brain_stroke_segmentation.metrics import (
     CombinedLoss,
     calculate_dice_score,
     calculate_iou_score,
     calculate_sensitivity,
     calculate_specificity,
-    calculate_accuracy,
 )
+from brain_stroke_segmentation.model import build_model
 from brain_stroke_segmentation.utils import get_git_commit_id
 
 
@@ -182,7 +182,7 @@ def train_model(
     print("Building model...")
     model = build_model(encoder_name=encoder_name, encoder_weights=encoder_weights)
     model = model.to(device)
-    print(f"\nModel built successfully!")
+    print("\nModel built successfully!")
     print(f"Total parameters: {sum(p.numel() for p in model.parameters()):,}")
     print(
         f"Trainable parameters: {sum(p.numel() for p in model.parameters() if p.requires_grad):,}"
@@ -267,11 +267,12 @@ def train_model(
         history["val_specificity"].append(val_specificity)
         history["val_accuracy"].append(val_accuracy)
 
-        print(f"Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, Train IoU: {train_iou:.4f}")
-        print(f"Val   Loss: {val_loss:.4f}, Val   Dice: {val_dice:.4f}, Val   IoU: {val_iou:.4f}")
         print(
-            f"Val Sensitivity: {val_sensitivity:.4f}, Val Specificity: {val_specificity:.4f}"
+            f"Train Loss: {train_loss:.4f}, Train Dice: {train_dice:.4f}, "
+            f"Train IoU: {train_iou:.4f}"
         )
+        print(f"Val   Loss: {val_loss:.4f}, Val   Dice: {val_dice:.4f}, Val   IoU: {val_iou:.4f}")
+        print(f"Val Sensitivity: {val_sensitivity:.4f}, Val Specificity: {val_specificity:.4f}")
         print(f"Val Accuracy: {val_accuracy:.4f}")
 
         # Log to MLflow

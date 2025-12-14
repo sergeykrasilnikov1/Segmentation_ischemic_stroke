@@ -1,10 +1,10 @@
 """Data loading and preprocessing utilities."""
 
-import os
-from pathlib import Path
 from glob import glob
-from sklearn.model_selection import train_test_split
+from pathlib import Path
 from typing import Tuple
+
+from sklearn.model_selection import train_test_split
 
 from brain_stroke_segmentation.dataset import StrokeDataset
 from brain_stroke_segmentation.transforms import get_transforms
@@ -29,18 +29,18 @@ def load_and_preprocess_data(dataset_path: Path | str) -> Tuple[list[Path], list
         return images_paths, masks_paths
 
     print(f"Loading data from: {dataset_path}")
-    
+
     stroke_cropped = dataset_path / "stroke_cropped"
     stroke_noncropped = dataset_path / "stroke_noncropped"
-    
+
     if stroke_cropped.exists() or stroke_noncropped.exists():
         for base_path in [stroke_cropped, stroke_noncropped]:
             if not base_path.exists():
                 continue
-                
+
             print(f"Searching in: {base_path}")
             print(f"Contents: {list(base_path.iterdir())[:5]}")
-            
+
             cropped_dirs = [
                 base_path / "CROPPED" / "TRAIN_CROP",
                 base_path / "CROPPED" / "TEST_CROP",
@@ -49,37 +49,37 @@ def load_and_preprocess_data(dataset_path: Path | str) -> Tuple[list[Path], list
                 base_path / "NON_CROPPED" / "TRAIN",
                 base_path / "NON_CROPPED" / "TEST",
             ]
-            
+
             all_search_dirs = cropped_dirs + noncropped_dirs
             print(f"Search directories: {[str(d) for d in all_search_dirs]}")
-            
+
             for search_dir in all_search_dirs:
                 if not search_dir.exists():
                     print(f"  Directory does not exist: {search_dir}")
                     continue
-                
+
                 print(f"  Checking directory: {search_dir}")
                 print(f"  Contents: {list(search_dir.iterdir())[:5]}")
-                
+
                 for class_dir in ["STROKE", "NORMAL", "Bleeding", "Ischemia", "Normal"]:
                     class_path = search_dir / class_dir
                     if not class_path.exists():
                         continue
-                    
+
                     print(f"    Found class directory: {class_path}")
                     image_files = (
-                        sorted(glob(str(class_path / "*.jpg"))) +
-                        sorted(glob(str(class_path / "*.png"))) +
-                        sorted(glob(str(class_path / "*.jpeg")))
+                        sorted(glob(str(class_path / "*.jpg")))
+                        + sorted(glob(str(class_path / "*.png")))
+                        + sorted(glob(str(class_path / "*.jpeg")))
                     )
-                    
+
                     if image_files:
                         print(f"    Found {len(image_files)} images in {class_path}")
-                        
+
                         for img_file in image_files:
                             img_path = Path(img_file)
                             images_paths.append(img_path)
-                            
+
                             overlay_file = None
                             overlay_dir = search_dir / "OVERLAY" / class_dir
                             if overlay_dir.exists():
@@ -89,7 +89,7 @@ def load_and_preprocess_data(dataset_path: Path | str) -> Tuple[list[Path], list
                                     if potential_overlay.exists():
                                         overlay_file = potential_overlay
                                         break
-                            
+
                             masks_paths.append(overlay_file)
                     else:
                         print(f"    No image files found in {class_path}")
@@ -116,8 +116,8 @@ def load_and_preprocess_data(dataset_path: Path | str) -> Tuple[list[Path], list
 
     print(f"Total images loaded: {len(images_paths)}")
     if len(images_paths) == 0:
-        print(f"Error: No images found! Check dataset structure.")
-        print(f"Tried paths: stroke_cropped, stroke_noncropped, or Bleeding/Ischemia/Normal/PNG")
+        print("Error: No images found! Check dataset structure.")
+        print("Tried paths: stroke_cropped, stroke_noncropped, or Bleeding/Ischemia/Normal/PNG")
 
     return images_paths, masks_paths
 
@@ -143,7 +143,7 @@ def create_datasets(
         Tuple of (train_dataset, val_dataset)
     """
     image_paths, mask_paths = load_and_preprocess_data(dataset_path)
-    
+
     if len(image_paths) == 0:
         raise ValueError(
             f"No images found in dataset path: {dataset_path}. "
@@ -176,6 +176,7 @@ def download_data(output_path: Path | str) -> None:
 
     try:
         import dvc.repo
+
         repo = dvc.repo.Repo()
         repo.pull()
         print("Data downloaded successfully via DVC")
@@ -184,24 +185,26 @@ def download_data(output_path: Path | str) -> None:
         print(f"DVC pull failed: {e}")
 
     try:
-        import kagglehub
         import shutil
+
+        import kagglehub
+
         dataset_path = kagglehub.dataset_download("ayushtibrewal/brain-stroke-images")
         print(f"Data downloaded from Kaggle to: {dataset_path}")
-        
+
         kaggle_data_path = Path(dataset_path)
         if kaggle_data_path.exists():
             if output_path.exists() and any(output_path.iterdir()):
                 print(f"Data already exists at {output_path}, skipping copy")
                 return
-            
+
             print(f"Copying data from {kaggle_data_path} to {output_path}...")
             print(f"Kaggle data structure: {list(kaggle_data_path.iterdir())[:10]}")
-            
+
             if kaggle_data_path.is_dir():
                 brain_stroke_dir = kaggle_data_path / "Brain_Stroke_CT_Dataset"
                 if brain_stroke_dir.exists():
-                    print(f"Found Brain_Stroke_CT_Dataset subdirectory")
+                    print("Found Brain_Stroke_CT_Dataset subdirectory")
                     for item in brain_stroke_dir.iterdir():
                         dest = output_path / item.name
                         if item.is_dir():
@@ -224,4 +227,3 @@ def download_data(output_path: Path | str) -> None:
     except Exception as e:
         print(f"Kaggle download failed: {e}")
         print("Please download data manually or configure DVC remote")
-

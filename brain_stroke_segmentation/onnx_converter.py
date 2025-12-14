@@ -1,8 +1,9 @@
 """ONNX conversion utilities."""
 
-import torch
-import onnx
 from pathlib import Path
+
+import onnx
+import torch
 
 from brain_stroke_segmentation.model import build_model
 
@@ -29,17 +30,19 @@ def convert_to_onnx(
     model_path = Path(model_path)
     output_path = Path(output_path)
 
-        model = build_model(encoder_name=encoder_name)
-        state_dict = torch.load(model_path, map_location="cpu")
+    model = build_model(encoder_name=encoder_name)
+    state_dict = torch.load(model_path, map_location="cpu")
     # Handle both .pth (state_dict) and legacy .ckpt (Lightning format)
-        if isinstance(state_dict, dict) and "state_dict" in state_dict:
+    if isinstance(state_dict, dict) and "state_dict" in state_dict:
         # Legacy Lightning checkpoint format
-            state_dict = state_dict["state_dict"]
-        # Remove 'model.' prefix if present
-        if any(k.startswith("model.") for k in state_dict.keys()):
-            state_dict = {k.replace("model.", ""): v for k, v in state_dict.items() if k.startswith("model.")}
-        model.load_state_dict(state_dict)
-        model.eval()
+        state_dict = state_dict["state_dict"]
+    # Remove 'model.' prefix if present
+    if any(k.startswith("model.") for k in state_dict.keys()):
+        state_dict = {
+            k.replace("model.", ""): v for k, v in state_dict.items() if k.startswith("model.")
+        }
+    model.load_state_dict(state_dict)
+    model.eval()
 
     model = model.cpu()
     dummy_input = torch.randn(1, 3, img_height, img_width)
@@ -60,4 +63,3 @@ def convert_to_onnx(
     onnx_model = onnx.load(str(output_path))
     onnx.checker.check_model(onnx_model)
     print(f"ONNX model saved to {output_path}")
-

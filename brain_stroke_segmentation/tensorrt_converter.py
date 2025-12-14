@@ -1,7 +1,6 @@
 """TensorRT conversion utilities."""
 
 import subprocess
-import sys
 from pathlib import Path
 
 
@@ -45,9 +44,6 @@ def convert_to_tensorrt(
         print(e.stderr)
         raise
     except FileNotFoundError:
-        print(
-            "trtexec not found. Please install TensorRT and ensure trtexec is in your PATH."
-        )
+        print("trtexec not found. Please install TensorRT and ensure trtexec is in your PATH.")
         print("Alternatively, you can use the Python TensorRT API.")
         raise
-

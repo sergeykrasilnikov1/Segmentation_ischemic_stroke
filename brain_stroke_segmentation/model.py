@@ -1,6 +1,7 @@
 """Model definitions."""
 
 import os
+
 import segmentation_models_pytorch as smp
 
 # Set environment variable to avoid torchvision nms issues during model building
@@ -8,7 +9,9 @@ import segmentation_models_pytorch as smp
 os.environ.setdefault("TORCHVISION_OPS_USE_CUDA", "0")
 
 
-def build_model(encoder_name: str = "efficientnet-b4", encoder_weights: str = "imagenet") -> smp.Unet:
+def build_model(
+    encoder_name: str = "efficientnet-b4", encoder_weights: str = "imagenet"
+) -> smp.Unet:
     """
     Build U-Net model for segmentation.
 
@@ -44,4 +47,3 @@ def build_model(encoder_name: str = "efficientnet-b4", encoder_weights: str = "i
         else:
             raise
     return model
-
