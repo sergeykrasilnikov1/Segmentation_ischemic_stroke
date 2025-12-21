@@ -29,9 +29,8 @@
 
 #### Требования
 
-- Python 3.9+
-- CUDA-capable GPU (рекомендуется)
-- Poetry для управления зависимостями
+- Python 3.12
+- Conda (Miniconda/Anaconda) для управления окружением
 
 #### Установка окружения
 
@@ -42,13 +41,20 @@ git clone https://github.com/sergeykrasilnikov1/Segmentation_ischemic_stroke.git
 cd brain-stroke-segmentation
 ```
 
-2. Создайте виртуальное окружение и установите зависимости:
+2. Создайте Conda-окружение и установите зависимости:
 
-**С использованием Poetry:**
+Если в системе нет conda, то установить:
 
 ```bash
-poetry install
-poetry shell
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+eval "$(/home/kuzga/miniconda3/bin/conda shell.bash hook)"
+conda init
+```
+
+```bash
+conda env create -f environment.yml
+conda activate brain-stroke-segmentation
 ```
 
 3. Установите pre-commit хуки:
