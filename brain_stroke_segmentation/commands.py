@@ -13,6 +13,11 @@ from brain_stroke_segmentation.onnx_converter import convert_to_onnx
 from brain_stroke_segmentation.train import train_model
 
 
+def _collect_images(root: Path) -> list[Path]:
+    extensions = {".png", ".jpg", ".jpeg"}
+    return [p for p in root.rglob("*") if p.is_file() and p.suffix.lower() in extensions]
+
+
 def train(config_path: str = "configs", config_name: str = "config") -> None:
     """
     Train the stroke segmentation model.
@@ -169,13 +174,34 @@ def infer(
         print(f"Prediction saved to {output_path_final / f'{input_path.stem}_prediction.png'}")
 
     elif input_path.is_dir():
-        image_files = (
-            list(input_path.glob("*.png"))
-            + list(input_path.glob("*.jpg"))
-            + list(input_path.glob("*.jpeg"))
-        )
-        results = inference.predict_batch(image_files, threshold=threshold_override)
-        print(f"Processed {len(results)} images. Results saved to {output_path_final}")
+        image_files = _collect_images(input_path)
+        if not image_files:
+            print(f"No images found in {input_path}")
+            return
+        import matplotlib.pyplot as plt
+
+        processed = 0
+        for image_path in image_files:
+            rgb, prob, binary = inference.predict(image_path, threshold=threshold_override)
+            rel_path = image_path.relative_to(input_path)
+            output_file = (output_path_final / rel_path).with_suffix(".png")
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+
+            fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+            axes[0].imshow(rgb)
+            axes[0].set_title("Original")
+            axes[0].axis("off")
+            axes[1].imshow(prob, cmap="gray")
+            axes[1].set_title("Probability")
+            axes[1].axis("off")
+            axes[2].imshow(binary, cmap="gray")
+            axes[2].set_title("Binary Mask")
+            axes[2].axis("off")
+            plt.savefig(output_file)
+            plt.close()
+            processed += 1
+
+        print(f"Processed {processed} images. Results saved to {output_path_final}")
 
     else:
         raise ValueError(f"Input path must be a file or directory: {input_path}")

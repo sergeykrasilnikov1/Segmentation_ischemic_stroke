@@ -207,13 +207,7 @@ dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation best_model.pth -
 Для запуска инференса на новых данных:
 
 ```bash
-python -m brain_stroke_segmentation.commands infer
-```
-
-Или с указанием путей:
-
-```bash
-python -m brain_stroke_segmentation.commands infer infer.input_path=data/test_images infer.output_path=data/predictions
+python -m brain_stroke_segmentation.commands infer data/Brain_Stroke_CT_Dataset/stroke_cropped/CROPPED/TEST_CROP/STROKE/184.jpg
 ```
 
 #### Формат входных данных
