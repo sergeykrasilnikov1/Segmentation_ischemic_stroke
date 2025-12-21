@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 from brain_stroke_segmentation.data_loader import create_datasets, download_data
 from brain_stroke_segmentation.inference import StrokeInference
-from brain_stroke_segmentation.onnx_converter import convert_to_onnx
+from brain_stroke_segmentation.onnx_converter import convert_to_onnx as convert_model_to_onnx
 from brain_stroke_segmentation.train import train_model
 
 
@@ -94,7 +94,7 @@ def train(config_path: str = "configs", config_name: str = "config") -> None:
         try:
             best_model_path = Path(cfg.train.checkpoint_dir) / "best_model.pth"
             onnx_path = Path(cfg.production.onnx_output_path)
-            convert_to_onnx(
+            convert_model_to_onnx(
                 model_path=best_model_path,
                 output_path=onnx_path,
                 img_height=cfg.data.img_height,
@@ -207,9 +207,38 @@ def infer(
         raise ValueError(f"Input path must be a file or directory: {input_path}")
 
 
+def convert_to_onnx(
+    model_path: str = "models/best_model.pth",
+    output_path: str = "models/model.onnx",
+    img_height: int = 256,
+    img_width: int = 256,
+    encoder_name: str = "efficientnet-b4",
+    opset_version: int = 18,
+) -> None:
+    """
+    Convert a PyTorch checkpoint to ONNX.
+
+    Args:
+        model_path: Path to PyTorch model weights (.pth file)
+        output_path: Path to save ONNX model
+        img_height: Input image height
+        img_width: Input image width
+        encoder_name: Encoder name used in training
+        opset_version: ONNX opset version
+    """
+    convert_model_to_onnx(
+        model_path=Path(model_path),
+        output_path=Path(output_path),
+        img_height=img_height,
+        img_width=img_width,
+        encoder_name=encoder_name,
+        opset_version=opset_version,
+    )
+
+
 def main():
     """Execute the main entry point."""
-    fire.Fire({"train": train, "infer": infer})
+    fire.Fire({"train": train, "infer": infer, "convert_to_onnx": convert_to_onnx})
 
 
 if __name__ == "__main__":
