@@ -58,6 +58,7 @@ ENV/
 *.engine
 *.cbm
 *.xyz
+models/checkpoints/
 
 # DVC
 .dvc/cache
@@ -67,6 +68,7 @@ ENV/
 
 # MLflow
 mlruns/
+mlflow.db
 
 # Logs
 *.log
@@ -100,3 +102,9 @@ models/*
 !models/.gitkeep
 !models/*.dvc
 web/
+
+
+# Temp
+Miniconda3-latest-Linux-x86_64.sh
+1.jpg
+131.jpg

@@ -10,3 +10,12 @@ stages:
       md5: caa2a5486a0542761883300e34514e26.dir
       size: 73401071
       nfiles: 3686
+  download_model:
+    cmd: dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation
+      best_model.pth -o models/best_model.pth
+    outs:
+    - path: models/best_model.pth
+      hash: md5
+      md5: 34ba37c49ead170b87b6ac6ae9be71a9
+      size: 81706788
+      isexec: true
