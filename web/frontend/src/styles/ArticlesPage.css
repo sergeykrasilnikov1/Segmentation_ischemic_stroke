@@ -1,0 +1,94 @@
+/* ArticlesPage.css */
+.articles-page {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+}
+
+.article-resources {
+  padding: 2rem 0;
+}
+
+.article-resources h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--gray-900);
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.resource-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.resource-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.resource-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.resource-card li {
+  margin-bottom: 0.75rem;
+}
+
+.resource-card a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.resource-card a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 2rem 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+}

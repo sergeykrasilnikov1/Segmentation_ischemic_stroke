@@ -1,0 +1,102 @@
+/* Navigation.css */
+.navigation {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.logo h1 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  flex: 1;
+}
+
+.nav-link {
+  background: none;
+  color: var(--gray-700);
+  font-weight: 500;
+  transition: color 0.2s ease;
+  padding: 0.5rem 1rem;
+}
+
+.nav-link:hover {
+  color: var(--primary-color);
+}
+
+.nav-link.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.nav-search {
+  flex: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-box {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  width: 250px;
+  font-size: 0.9rem;
+  background-color: var(--gray-50);
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background-color: white;
+}
+
+.search-button {
+  background: none;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.search-button:hover {
+  background-color: var(--gray-100);
+  border-color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-menu {
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+}

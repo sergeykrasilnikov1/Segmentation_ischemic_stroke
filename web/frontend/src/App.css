@@ -1,0 +1,25 @@
+/* App.css */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+}
+
+.footer {
+  background-color: var(--gray-800);
+  color: white;
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 4rem;
+  border-top: 1px solid var(--gray-700);
+}
+
+.footer p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}

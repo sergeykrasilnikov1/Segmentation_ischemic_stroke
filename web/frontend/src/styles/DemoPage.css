@@ -1,0 +1,50 @@
+/* DemoPage.css */
+.demo-page {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.demo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.demo-instructions {
+  background-color: var(--gray-100);
+  padding: 2rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.demo-instructions h2 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.demo-instructions ol {
+  margin-left: 1.5rem;
+  line-height: 1.8;
+}
+
+.demo-instructions li {
+  margin-bottom: 0.5rem;
+}
+
+.demo-info {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.demo-info h2 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.demo-info p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}

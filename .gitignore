@@ -101,8 +101,7 @@ data/*
 models/*
 !models/.gitkeep
 !models/*.dvc
-web/
-
+web/frontend/node_modules/*
 
 # Temp
 Miniconda3-latest-Linux-x86_64.sh

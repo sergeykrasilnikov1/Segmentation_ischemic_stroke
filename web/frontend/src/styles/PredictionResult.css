@@ -1,0 +1,122 @@
+/* PredictionResult.css */
+.prediction-result {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prediction-result h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.result-item h3 {
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.result-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  object-fit: contain;
+  max-height: 400px;
+}
+
+.result-info {
+  background-color: var(--gray-50);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.result-info p {
+  margin: 0.5rem 0;
+  color: var(--gray-700);
+}
+
+.result-info strong {
+  color: var(--gray-900);
+}
+
+.result-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.download-button,
+.new-prediction-button {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 150px;
+}
+
+.download-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.download-button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.new-prediction-button {
+  background-color: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.new-prediction-button:hover {
+  background-color: var(--gray-300);
+}
+
+@media (max-width: 768px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-actions {
+    flex-direction: column;
+  }
+
+  .download-button,
+  .new-prediction-button {
+    width: 100%;
+  }
+}
