@@ -1,8 +1,8 @@
 schema: '2.0'
 stages:
   download_data:
-    cmd: python -c "from brain_stroke_segmentation.data_loader import
-      download_data; from pathlib import Path;
+    cmd: python -c "from brain_stroke_segmentation.data_loader import 
+      download_data; from pathlib import Path; 
       download_data(Path('data/Brain_Stroke_CT_Dataset'))"
     outs:
     - path: data/Brain_Stroke_CT_Dataset
@@ -11,7 +11,7 @@ stages:
       size: 73401071
       nfiles: 3686
   download_model:
-    cmd: dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation
+    cmd: dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation 
       best_model.pth -o models/best_model.pth
     outs:
     - path: models/best_model.pth
