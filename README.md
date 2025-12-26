@@ -71,26 +71,12 @@ pre-commit run -a
 
 #### Настройка данных
 
-Данные управляются через DVC. Для загрузки данных есть два способа:
-
-**Способ 1: Через DVC pipeline (рекомендуется для первоначальной загрузки)**
+Данные управляются через DVC:
 
 1. Запустите DVC pipeline для скачивания данных:
 
 ```bash
 dvc repro download_data
-```
-
-2. Закоммитьте данные в DVC:
-
-```bash
-dvc commit
-```
-
-**Способ 2: Через `dvc pull` (если данные уже есть в DVC remote)**
-
-```bash
-dvc pull
 ```
 
 **Примечание:** Данные также будут скачаны автоматически при первом запуске обучения, если их еще нет.
@@ -186,14 +172,6 @@ convert_to_tensorrt(
 
 **Требования**: Установленный TensorRT и trtexec в PATH.
 
-**Загрузка весов модели из Hugging Face Hub**
-
-DVC поддерживает прямую интеграцию с Hugging Face Hub. Вы можете скачать модель напрямую:
-
-```bash
-dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation best_model.pth -o models/best_model.pth
-```
-
 #### Артефакты для продакшена
 
 Для запуска инференса необходимы:
@@ -203,6 +181,12 @@ dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation best_model.pth -
 - Модуль `brain_stroke_segmentation.inference`
 
 ### Infer
+
+Вы можете скачать веса модели:
+
+```bash
+dvc get https://huggingface.co/kras59/Brain_Stroke_Segmentation best_model.pth -o models/best_model.pth
+```
 
 Для запуска инференса на новых данных:
 
